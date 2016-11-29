@@ -88,4 +88,5 @@ Optional: add tab completion!
 
 ```bash
 cp ldaps_completion /etc/bash_completion.d/
+source /etc/bash_completion.d/ldaps_completion
 ```
