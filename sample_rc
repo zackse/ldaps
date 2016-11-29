@@ -1,0 +1,5 @@
+# install as ~/.config/ldaps/rc
+LDAP_SERVER=ldap.mydomain.com
+LDAP_BASE_DN=DC=my,DC=domain,DC=com
+LDAP_BIND_DN=serviceaccount@my.domain.com
+LDAP_BIND_PW=mypassword

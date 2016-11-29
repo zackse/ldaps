@@ -1,0 +1,49 @@
+# -*- shell-script -*-
+
+# bash-completion for ldaps utility
+#
+# first arg (two char minimum) completes to usernames
+# rest of args complete to attr names
+#
+# include in your ~/.bashrc (only takes effect if ldaps is
+# in your $PATH):
+#
+#     source /path/to/ldaps_completion
+#
+# or install into /etc/bash_completion.d/
+
+_ldaps() {
+    local cur prev
+    COMPREPLY=()
+    cur=${COMP_WORDS[COMP_CWORD]}
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    if [[ $COMP_CWORD > 1 ]]; then
+        # list of attributes
+        case "$prev" in
+           *)
+               COMPREPLY=( $(compgen -W \
+                             "$(ldaps ${COMP_WORDS[1]}\* | perl -nle 'm/^([^#][^:]+):/ and print lc $1')" \
+                             -- $cur) )
+               return 0
+               ;;
+        esac
+    fi
+
+    # username
+    case "$cur" in
+       [a-zA-Z][a-zA-Z]*)
+           COMPREPLY=( $(compgen -W \
+                         "$(ldaps ${cur}\* samaccountname | awk '/^sAMAccountName:/ { print tolower($2) }')" \
+                         -- $cur) )
+           return 0
+           ;;
+    esac
+
+    return 0
+}
+
+# autocomplete for ldaps utility
+if [ -n "$(which ldaps)" ]; then
+    complete -F _ldaps ldaps
+fi

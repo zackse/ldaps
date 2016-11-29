@@ -1,0 +1,71 @@
+#!/bin/bash
+#
+# simple wrapper around ldapsearch with config/credentials in place
+# requires ldapsearch from openldap ("ldap-utils" package on debian, et al.)
+
+LDAPSEARCH=$(which ldapsearch)
+
+if [ -z "$LDAPSEARCH" ]; then
+    echo "ldapsearch is required, please make sure it is in your \$PATH" >&2
+    exit 1
+fi
+
+CONFIG_FILE=~/.config/ldaps/rc
+
+if [ -f $CONFIG_FILE ]; then
+  . $CONFIG_FILE
+fi
+
+if [ -z "$LDAP_SERVER"  ] ||
+   [ -z "$LDAP_BASE_DN" ] ||
+   [ -z "$LDAP_BIND_DN" ] ||
+   [ -z "$LDAP_BIND_PW" ]
+then
+    exec >&2
+    echo "The following variables must be defined in $CONFIG_FILE"
+    echo "(or your environment)"
+    echo
+    echo LDAP_SERVER
+    echo LDAP_BASE_DN
+    echo LDAP_BIND_DN
+    echo LDAP_BIND_PW
+    exit 1
+fi
+
+query=$1
+
+if [ -z "$query" ]
+then
+    exec >&2
+    echo "Usage: $0 FILTER [ returnfield, ... ]"
+    echo
+    echo "  example: $0 cn=Tester proxyAddresses"
+    echo
+    echo "Note: sAMAccountName is implied when a single token is provided as the filter:"
+    echo
+    echo "  example: $0 zackse dn"
+    echo
+    exit 1
+fi
+
+shift
+
+# assume sAMAccountName when '=' doesn't appear in the filter
+if [ "${query/=/}" = "$query" ]; then
+    query="samaccountname=$query"
+fi
+
+# effectively a no-op when called from another script in a
+# non-interactive environment, for example
+PAGER=${PAGER:-/bin/cat}
+
+ldapsearch -z 5000 \
+    -h $LDAP_SERVER \
+    -b $LDAP_BASE_DN \
+    -D $LDAP_BIND_DN \
+    -w $LDAP_BIND_PW \
+    -x "($query)" $@ \
+    | perl -p00e 's/\r?\n //g' \
+    | perl -ne 'print if ! (/^#/ or /^ref:/)' \
+    | uniq \
+    | $PAGER
