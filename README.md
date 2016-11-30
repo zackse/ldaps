@@ -79,6 +79,7 @@ Create a config file:
 ```bash
 mkdir -p ~/.config/ldaps
 cp sample_rc ~/.config/ldaps/rc
+chmod 600 ~/.config/ldaps/rc
 $EDITOR ~/.config/ldaps/rc
 ...
 
@@ -89,4 +90,18 @@ Optional: add tab completion!
 ```bash
 cp ldaps_completion /etc/bash_completion.d/
 source /etc/bash_completion.d/ldaps_completion
+```
+
+a note on security
+------------------
+
+This script requires credentials for an account with read access to your AD/LDAP server. If you do not want to save the credentials in a config file (`~/.config/ldaps/rc`), you can set them in your environment. This isn't necessarily more secure, but it is an alternate approach if you don't want the credentials in persistent storage.
+
+For example, if you prefer to omit the password from the config file, you could set it in your environment and make it available to `ldaps`:
+
+```bash
+read -s LDAP_BIND_PW
+(type in your password here, it will not be displayed while you are typing)
+
+export LDAP_BIND_PW
 ```
