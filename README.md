@@ -31,7 +31,7 @@ If you install the bash completion script (see **installation** below), you can 
 ldaps zack<TAB>
 ```
 
-If you are searching on a username, you can tab-complete attfibute names:
+If you are searching on a username, you can tab-complete attribute names:
 
 ```bash
 $ ldaps zackse sam<TAB>
