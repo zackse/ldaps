@@ -1,9 +1,12 @@
 #!/bin/bash
 #
-# simple wrapper around ldapsearch with config/credentials in place
-# requires ldapsearch from openldap ("ldap-utils" package on debian, et al.)
+# Simple wrapper around ldapsearch(1) with config/credentials in place.
+# Requires ldapsearch from OpenLDAP:
+# * "ldap-utils" package on Debian/Ubuntu/etc.
+# * "openldap-clients" on Red Hat/CentOS/Fedora/etc.
+# * installed by default on OS X
 
-LDAPSEARCH=$(which ldapsearch)
+LDAPSEARCH=$(command -v ldapsearch)
 
 if [ -z "$LDAPSEARCH" ]; then
     echo "ldapsearch is required, please make sure it is in your \$PATH" >&2
@@ -59,11 +62,13 @@ fi
 # non-interactive environment, for example
 PAGER=${PAGER:-/bin/cat}
 
-ldapsearch -z 5000 \
+ldapsearch \
     -h $LDAP_SERVER \
     -b $LDAP_BASE_DN \
     -D $LDAP_BIND_DN \
     -w $LDAP_BIND_PW \
+    $LDAP_PAGING \
+    $LDAP_MY_ARGS \
     -x "($query)" $@ \
     | perl -p00e 's/\r?\n //g' \
     | perl -ne 'print if ! (/^#/ or /^ref:/)' \
