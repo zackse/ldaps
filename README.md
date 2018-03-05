@@ -22,6 +22,15 @@ To handle the common case of searching by Active Directory username, specifying 
 ldaps zackse displayName
 ```
 
+requirements
+------------
+
+* OpenLDAP clients
+  * Debian/Ubuntu: `ldap-utils`
+  * Red Hat/CentOS/Fedora: `openldap-clients`
+  * OS X: installed by default
+* Perl
+
 tab-completion
 --------------
 
